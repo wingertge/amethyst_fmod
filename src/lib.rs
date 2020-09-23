@@ -6,7 +6,6 @@ mod resource;
 mod system;
 mod update_system;
 
-pub use crate::animation::event_system::*;
 pub use bundle::*;
 pub use event::*;
 pub use resource::*;
