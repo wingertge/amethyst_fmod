@@ -2,7 +2,7 @@ use crate::{resource::AudioSystem, Attributes3D};
 use amethyst::{
     core::{
         ecs::{Join, ReadStorage},
-        math::Vector2,
+        math::Vector3,
         Transform
     },
     derive::SystemDesc,
@@ -28,8 +28,8 @@ impl<'s> System<'s> for UpdateSystem {
             fmod.set_listener_attributes(
                 0,
                 Attributes3D {
-                    position: Vector2::new(pos.x, pos.y),
-                    velocity: Vector2::new(0.0, 0.0)
+                    position: *pos,
+                    velocity: Vector3::new(0.0, 0.0, 0.0)
                 }
             )
             .unwrap();

@@ -1,5 +1,5 @@
 use crate::{EventDescription, Status};
-use amethyst::core::math::Vector2;
+use amethyst::core::math::{Vector3};
 use fmod_sys::*;
 use log::debug;
 use std::{
@@ -145,8 +145,8 @@ static FORWARD: FMOD_VECTOR = FMOD_VECTOR {
 };
 
 pub struct Attributes3D {
-    pub position: Vector2<f32>,
-    pub velocity: Vector2<f32>
+    pub position: Vector3<f32>,
+    pub velocity: Vector3<f32>
 }
 
 impl From<Attributes3D> for FMOD_3D_ATTRIBUTES {
@@ -154,12 +154,12 @@ impl From<Attributes3D> for FMOD_3D_ATTRIBUTES {
         let position = FMOD_VECTOR {
             x: attributes.position.x,
             y: attributes.position.y,
-            z: 0.0
+            z: attributes.position.z
         };
         let velocity = FMOD_VECTOR {
             x: attributes.velocity.x,
             y: attributes.velocity.y,
-            z: 0.0
+            z: attributes.velocity.z
         };
 
         FMOD_3D_ATTRIBUTES {

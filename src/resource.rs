@@ -1,9 +1,10 @@
 use crate::{
     Attributes3D, Bank, EventInstance, Status, System
 };
-use amethyst::core::{math::Vector2, num::Zero};
+use amethyst::core::{num::Zero};
 use std::ops::Deref;
 use std::collections::HashMap;
+use amethyst::core::math::Vector3;
 
 pub struct AudioSystem {
     system: System,
@@ -88,7 +89,8 @@ impl Deref for AudioSystem {
 pub struct SoundBuilder<'a> {
     system: &'a AudioSystem,
     event: &'a str,
-    position: Option<Vector2<f32>>,
+    position: Option<Vector3<f32>>,
+    velocity: Option<Vector3<f32>>,
     params: HashMap<&'a str, f32>
 }
 
@@ -98,12 +100,18 @@ impl<'a> SoundBuilder<'a> {
             system,
             event,
             position: None,
+            velocity: None,
             params: Default::default()
         }
     }
 
-    pub fn with_position(mut self, pos: Vector2<f32>) -> Self {
+    pub fn with_position(mut self, pos: Vector3<f32>) -> Self {
         self.position.replace(pos);
+        self
+    }
+
+    pub fn with_velocity(mut self, velocity: Vector3<f32>) -> Self {
+        self.velocity.replace(velocity);
         self
     }
 
@@ -122,10 +130,10 @@ impl<'a> SoundBuilder<'a> {
         let description = self.system.system.find_event(name)?;
         let mut instance = description.create_instance()?;
 
-        if let Some(pos) = self.position {
+        if self.position.is_some() || self.velocity.is_some() {
             instance.set_3d_attributes(Attributes3D {
-                position: pos,
-                velocity: Vector2::zero()
+                position: self.position.unwrap_or_else(Vector3::zero),
+                velocity: self.velocity.unwrap_or_else(Vector3::zero)
             })?;
         }
 
