@@ -4,15 +4,9 @@ use fmod_sys::*;
 use log::debug;
 use std::{
     ffi::{CStr, CString},
-    future::Future,
     mem,
     mem::MaybeUninit,
-    pin::Pin,
-    ptr::null_mut,
-    sync::{Arc, Mutex},
-    task::{Context, Poll, Waker},
-    thread,
-    time::Duration
+    ptr::null_mut
 };
 
 pub struct System {
@@ -195,7 +189,7 @@ impl CoreSystem {
             let mut name_buf = vec![0i8; 1024];
             let mut guid = MaybeUninit::zeroed().assume_init();
             let mut sample_rate = 0;
-            let mut speaker_mode = 0;
+            let mut speaker_mode = FMOD_SPEAKERMODE::FMOD_SPEAKERMODE_DEFAULT;
             let mut speaker_mode_channels = 0;
             Status::result(FMOD_System_GetDriverInfo(
                 self.system,
@@ -278,14 +272,9 @@ impl Bank {
         }
     }
 
-    pub async fn load_sample_data(&self) -> Result<(), Status> {
+    pub fn load_sample_data(&self) -> Result<(), Status> {
         unsafe {
-            Status::result(FMOD_Studio_Bank_LoadSampleData(self.bank))?;
-            let getter =
-                move |state_ptr| FMOD_Studio_Bank_GetSampleLoadingState(self.bank, state_ptr);
-            LoadingFuture::new(getter)
-                .await
-                .map_err(|_| Status::EventAlreadyLoaded)
+            Status::result(FMOD_Studio_Bank_LoadSampleData(self.bank))
         }
     }
 
@@ -314,58 +303,5 @@ impl Bank {
             .map(|b| unsafe { mem::transmute(*b) })
             .collect();
         Ok(String::from_utf8(bytes).unwrap())
-    }
-}
-
-pub struct LoadingFuture<F> {
-    state_getter: F,
-    waker: Arc<Mutex<Option<Waker>>>
-}
-
-impl<F: Fn(*mut FMOD_STUDIO_LOADING_STATE) -> i32> LoadingFuture<F> {
-    pub fn new(f: F) -> Self {
-        Self {
-            waker: Arc::new(Mutex::new(None)),
-            state_getter: f
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-#[repr(C)]
-#[allow(unused)]
-enum LoadingState {
-    Unloading,
-    Unloaded,
-    Loading,
-    Loaded,
-    Error
-}
-
-impl<F: Fn(*mut FMOD_STUDIO_LOADING_STATE) -> i32> Future for LoadingFuture<F> {
-    type Output = Result<(), Status>;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let mut loading_state = unsafe { MaybeUninit::zeroed().assume_init() };
-        Status::result((self.state_getter)(&mut loading_state))?;
-        let loading_state = unsafe { mem::transmute(loading_state) };
-        //println!("Loading state: {:?} at {:?}", loading_state, Instant::now());
-        match loading_state {
-            LoadingState::Loading | LoadingState::Unloading => {
-                let mut waker = self.waker.lock().unwrap();
-                waker.replace(cx.waker().clone());
-                let waker = self.waker.clone();
-                thread::spawn(move || {
-                    thread::sleep(Duration::from_millis(100));
-                    let mut waker = waker.lock().unwrap();
-                    if let Some(waker) = waker.take() {
-                        waker.wake();
-                    }
-                });
-                Poll::Pending
-            }
-            LoadingState::Loaded | LoadingState::Unloaded => Poll::Ready(Ok(())),
-            LoadingState::Error => Poll::Ready(Err(Status::EventAlreadyLoaded))
-        }
     }
 }

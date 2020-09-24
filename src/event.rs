@@ -68,13 +68,22 @@ pub enum StopMode {
     Immediate = 1
 }
 
+impl From<StopMode> for FMOD_STUDIO_STOP_MODE {
+    fn from(mode: StopMode) -> Self {
+        match mode {
+            StopMode::AllowFadeout => FMOD_STUDIO_STOP_MODE::FMOD_STUDIO_STOP_ALLOWFADEOUT,
+            StopMode::Immediate => FMOD_STUDIO_STOP_MODE::FMOD_STUDIO_STOP_IMMEDIATE
+        }
+    }
+}
+
 impl EventInstance {
     pub fn start(&self) -> Result<(), Status> {
         unsafe { Status::result(FMOD_Studio_EventInstance_Start(self.instance)) }
     }
 
     pub fn stop(&self, mode: StopMode) -> Result<(), Status> {
-        unsafe { Status::result(FMOD_Studio_EventInstance_Stop(self.instance, mode as i32)) }
+        unsafe { Status::result(FMOD_Studio_EventInstance_Stop(self.instance, mode.into())) }
     }
 
     pub fn set_3d_attributes(&mut self, attributes: Attributes3D) -> Result<(), Status> {
