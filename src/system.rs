@@ -1,5 +1,5 @@
 use crate::{EventDescription, Status};
-use amethyst::core::math::{Vector3};
+use amethyst::core::math::Vector3;
 use fmod_sys::*;
 use log::debug;
 use std::{
@@ -273,9 +273,7 @@ impl Bank {
     }
 
     pub fn load_sample_data(&self) -> Result<(), Status> {
-        unsafe {
-            Status::result(FMOD_Studio_Bank_LoadSampleData(self.bank))
-        }
+        unsafe { Status::result(FMOD_Studio_Bank_LoadSampleData(self.bank)) }
     }
 
     pub fn path(&self) -> Result<String, Status> {

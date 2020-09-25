@@ -1,5 +1,5 @@
-use std::{error::Error, fmt, fmt::Display};
 use fmod_sys::FMOD_RESULT;
+use std::{error::Error, fmt, fmt::Display};
 
 mod bundle;
 mod event;

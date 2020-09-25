@@ -1,10 +1,6 @@
-use crate::{
-    Attributes3D, Bank, EventInstance, Status, System
-};
-use amethyst::core::{num::Zero};
-use std::ops::Deref;
-use std::collections::HashMap;
-use amethyst::core::math::Vector3;
+use crate::{Attributes3D, Bank, EventInstance, Status, System};
+use amethyst::core::{math::Vector3, num::Zero};
+use std::{collections::HashMap, ops::Deref};
 
 pub struct AudioSystem {
     system: System,
