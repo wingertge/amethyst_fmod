@@ -8,9 +8,9 @@ edition = "2018"
 
 [dependencies]
 fmod-sys = { git = "https://github.com/wingertge/fmod-sys", features = ["studio"] }
-amethyst = "0.15"
+amethyst = { git = "https://github.com/wingertge/amethyst.git" }
 log = "0.4"
 
 [dev-dependencies.amethyst]
-version = "0.15"
+git = "https://github.com/wingertge/amethyst.git"
 features = ["empty"]
