@@ -9,6 +9,7 @@ use std::{
     ptr::null_mut
 };
 
+#[derive(Clone)]
 pub struct System {
     system: *mut FMOD_STUDIO_SYSTEM,
     master_bank: Option<Bank>,
@@ -228,6 +229,7 @@ pub struct DriverInfo {
     speaker_mode_channels: i32
 }
 
+#[derive(Clone)]
 pub struct Bank {
     bank: *mut FMOD_STUDIO_BANK
 }

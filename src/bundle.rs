@@ -1,11 +1,9 @@
-use crate::{AudioSystem, System, UpdateSystem};
+use crate::{update_camera_position_system, update_fmod_system, AudioSystem, System};
 use amethyst::{
-    core::{
-        shred::{DispatcherBuilder, World},
-        SystemBundle
-    },
+    core::{dispatcher::SystemBundle, ecs::DispatcherBuilder},
     Error
 };
+use legion::{Resources, World};
 
 pub struct FmodBundle {
     system: System,
@@ -18,15 +16,19 @@ impl FmodBundle {
     }
 }
 
-impl<'a, 'b> SystemBundle<'a, 'b> for FmodBundle {
-    fn build(
-        self,
-        world: &mut World,
-        dispatcher: &mut DispatcherBuilder<'a, 'b>
+impl SystemBundle for FmodBundle {
+    fn load(
+        &mut self,
+        _: &mut World,
+        resources: &mut Resources,
+        builder: &mut DispatcherBuilder
     ) -> Result<(), Error> {
-        world.insert(AudioSystem::new(self.system, self.base_path));
-        dispatcher.add(UpdateSystem, "fmod_update_system", &[]);
-
+        resources.insert(AudioSystem::new(
+            self.system.clone(),
+            self.base_path.clone()
+        ));
+        builder.add_system(update_camera_position_system());
+        builder.add_system(update_fmod_system());
         Ok(())
     }
 }

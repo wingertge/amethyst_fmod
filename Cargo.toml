@@ -8,9 +8,21 @@ edition = "2018"
 
 [dependencies]
 fmod-sys = { git = "https://github.com/wingertge/fmod-sys", features = ["studio"] }
-amethyst = { git = "https://github.com/wingertge/amethyst.git" }
 log = "0.4"
 
+[dependencies.legion]
+git = "https://github.com/TomGillen/legion"
+rev = "b93b636d"
+default-features = false
+features = ["serialize", "crossbeam-events", "codegen"]
+
+[dependencies.amethyst]
+git = "https://github.com/amethyst/amethyst.git"
+branch = "legion_v2"
+# path = "../../amethyst"
+
 [dev-dependencies.amethyst]
-git = "https://github.com/wingertge/amethyst.git"
+git = "https://github.com/amethyst/amethyst.git"
+branch = "legion_v2"
+# path = "../../amethyst"
 features = ["empty"]
